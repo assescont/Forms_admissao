@@ -686,6 +686,10 @@ function validarFormulario(dados) {
     if (!dados.etnia) {
         erros.push({ campo: 'etnia', msg: 'Selecione a etnia' });
     }
+    if (!dados.grauInstrucao) {
+        erros.push({ campo: 'grauInstrucao', msg: 'Selecione o grau de instrução' });
+    }
+    // `formacao` é opcional — não validamos.
     if (!dados.nomeMae || dados.nomeMae.trim().length < 3) {
         erros.push({ campo: 'nomeMae', msg: 'Nome da mãe inválido' });
     }
@@ -849,6 +853,8 @@ form.addEventListener('submit', async (e) => {
         dataNascimento: document.getElementById('dataNascimento').value,
         estadoCivil: document.getElementById('estadoCivil').value,
         cpf: document.getElementById('cpf').value,
+        grauInstrucao: document.getElementById('grauInstrucao').value,
+        formacao: document.getElementById('formacao').value,
         genero: document.getElementById('genero').value,
         etnia: document.getElementById('etnia').value,
         nomePai: document.getElementById('nomePai').value,
