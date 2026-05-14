@@ -1,0 +1,5 @@
+# Sessão do Claude Code (local) — não deve subir
+.claude/
+
+# Documentação interna — mantida fora do repositório público
+DOCUMENTACAO.md

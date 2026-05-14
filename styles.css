@@ -396,6 +396,73 @@ body {
 }
 
 /* ============================================
+   CONSENTIMENTO LGPD
+   ----------------------------------------------
+   Aparece antes do botão de submit. O campo é
+   obrigatório — quando .error está aplicada
+   (controlado pelo script.js), a borda fica
+   vermelha pra chamar atenção.
+   ============================================ */
+.form-consent {
+    max-width: 640px;
+    margin: 0 auto 2rem;
+    padding: 1.25rem 1.5rem;
+    background: rgba(212, 165, 116, 0.06);
+    border: 1px solid var(--border-light);
+    border-radius: 4px;
+    text-align: left;
+    transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.form-consent.error {
+    border-color: #c0392b;
+    background: rgba(192, 57, 43, 0.05);
+}
+
+.consent-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    cursor: pointer;
+    margin: 0;
+}
+
+.consent-label input[type="checkbox"] {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    margin-top: 0.15rem;
+    accent-color: var(--accent-dark);
+    cursor: pointer;
+}
+
+.consent-text {
+    font-size: 0.8rem;
+    color: var(--text-body);
+    line-height: 1.6;
+}
+
+.consent-text strong {
+    color: var(--text-dark);
+    font-weight: 600;
+}
+
+.consent-text a {
+    color: var(--accent-dark);
+    text-decoration: underline;
+}
+
+.consent-text a:hover {
+    color: var(--text-dark);
+}
+
+.consent-text abbr {
+    text-decoration: none;
+    border-bottom: 1px dotted var(--text-muted);
+    cursor: help;
+}
+
+/* ============================================
    FEEDBACK
    ============================================ */
 .feedback {
@@ -618,6 +685,128 @@ body {
 }
 
 /* ============================================
+   DEPENDENTES — seção dinâmica
+   ============================================ */
+.dependentes-section[hidden] {
+    display: none;
+}
+
+.dependente-card {
+    background: #FAFAFA;
+    border: 1px solid var(--line-soft, var(--border-light));
+    border-left: 3px solid var(--accent);
+    padding: 1.5rem 1.5rem 1.25rem;
+    margin-bottom: 1.25rem;
+    position: relative;
+}
+
+.dependente-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.dependente-numero {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--accent-dark);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+}
+
+.dependente-remove {
+    background: transparent;
+    border: 1px solid var(--border-input);
+    width: 30px;
+    height: 30px;
+    color: var(--text-label);
+    cursor: pointer;
+    font-size: 0.95rem;
+    line-height: 1;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dependente-remove:hover {
+    background: #C73E3E;
+    color: var(--text-light);
+    border-color: #C73E3E;
+}
+
+/* Card em estado de erro (nenhum documento anexado). */
+.dependente-card.error {
+    border-color: #C73E3E;
+    border-left-color: #C73E3E;
+    background: #FDF5F5;
+}
+
+/* Grid de slots de documento dentro do card de dependente. */
+.dep-slots-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.dep-slot[hidden] {
+    display: none;
+}
+
+.dep-slot .doc-dropzone {
+    width: 100%;
+    min-height: 100px;
+}
+
+.dep-slot .doc-preview {
+    margin-top: 0.5rem;
+}
+
+/* Slot condicional (certidão de casamento) tem um sutil indicador
+   visual quando aparece, para chamar atenção do usuário. */
+.dep-slot-condicional .doc-dropzone {
+    border-style: dashed;
+}
+
+/* Botão "Adicionar dependente" — discreto, com plus icon. */
+.dependentes-actions {
+    margin-top: 0.5rem;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-add-dependente {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: transparent;
+    border: 1.5px dashed var(--accent);
+    color: var(--accent-dark);
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    padding: 0.85rem 1.75rem;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.btn-add-dependente:hover {
+    background: var(--accent-soft);
+    border-style: solid;
+    color: var(--accent-dark);
+}
+
+.btn-add-dependente:active {
+    transform: translateY(1px);
+}
+
+/* ============================================
    RESPONSIVO
    ============================================ */
 @media (max-width: 768px) {
@@ -656,5 +845,13 @@ body {
         width: 100%;
         min-width: auto;
         padding: 1rem 2rem;
+    }
+
+    .dependente-card {
+        padding: 1.25rem 1rem;
+    }
+
+    .dep-slots-grid {
+        grid-template-columns: 1fr;
     }
 }

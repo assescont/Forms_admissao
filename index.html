@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+c5rf<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -118,9 +118,40 @@
                     </div>
 
                     <div class="form-field">
-                        <label for="cnh">CNH</label>
-                        <input type="text" id="cnh" name="cnh" maxlength="11" placeholder="00000000000">
+                        <label for="temDependentes">Possui dependentes? <span class="req">*</span></label>
+                        <select id="temDependentes" name="temDependentes" required>
+                            <option value="">Selecione</option>
+                            <option value="nao">Não</option>
+                            <option value="sim">Sim</option>
+                        </select>
                     </div>
+                </div>
+            </section>
+
+            <!-- DEPENDENTES (visível apenas se "Possui dependentes" = Sim) -->
+            <section class="form-section dependentes-section" id="dependentesSection" hidden>
+                <div class="section-header">
+                    <span class="section-line"></span>
+                    <h2 class="section-title">DEPENDENTES</h2>
+                    <span class="section-line"></span>
+                </div>
+
+                <p class="section-intro">
+                    Para cada dependente, anexe os documentos abaixo. A certidão de
+                    casamento ou de união estável aparece somente se o estado civil informado for "Casado(a)".
+                    Pelo menos um documento por dependente é obrigatório.
+                </p>
+
+                <!-- Lista dinâmica de dependentes (preenchida via script.js) -->
+                <div id="dependentesList"></div>
+
+                <div class="dependentes-actions">
+                    <button type="button" id="addDependenteBtn" class="btn-add-dependente">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+                            <path d="M12 5v14M5 12h14"/>
+                        </svg>
+                        <span>ADICIONAR DEPENDENTE</span>
+                    </button>
                 </div>
             </section>
 
@@ -358,14 +389,27 @@
 
             <!-- SUBMIT -->
             <div class="form-actions">
+                <!-- CONSENTIMENTO LGPD
+                     Checkbox obrigatório. O submit em script.js bloqueia
+                     o envio se não estiver marcado. -->
+                <div class="form-consent" id="consentField">
+                    <label class="consent-label" for="consentLgpd">
+                        <input type="checkbox" id="consentLgpd" name="consentLgpd" required>
+                        <span class="consent-text">
+                            <strong>Concordo com o tratamento dos meus dados pessoais e documentos</strong>
+                            para fins exclusivos do meu processo de admissão na Assescont, em conformidade
+                            com a <abbr title="Lei Geral de Proteção de Dados Pessoais — Lei 13.709/2018">LGPD</abbr>.
+                            Estou ciente de que poderei solicitar acesso, correção ou exclusão dos meus dados
+                            a qualquer momento pelo e-mail
+                            <a href="mailto:automacao@assescont.com.br">automacao@assescont.com.br</a>.
+                        </span>
+                    </label>
+                </div>
+
                 <button type="submit" id="submitBtn" class="btn-submit">
                     <span class="btn-text">ENVIAR ADMISSÃO</span>
                     <span class="btn-loader" aria-hidden="true"></span>
                 </button>
-                <p class="form-disclaimer">
-                    Ao enviar, você concorda que seus dados serão utilizados para o processo de admissão,
-                    em conformidade com a LGPD.
-                </p>
             </div>
 
         </form>

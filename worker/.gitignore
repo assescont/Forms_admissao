@@ -1,0 +1,4 @@
+# Cloudflare Wrangler — arquivos locais que não devem ir para o Git.
+.dev.vars
+.wrangler/
+node_modules/

@@ -1,0 +1,34 @@
+# ============================================================
+# Cloudflare Worker — forms-admissao-proxy
+# ------------------------------------------------------------
+# Worker que esconde a URL do webhook n8n do navegador.
+# Ver worker.js para o código e DOCUMENTACAO.md (§7.4) para
+# o passo-a-passo de deploy.
+# ============================================================
+
+name = "forms-admissao-proxy"
+main = "worker.js"
+compatibility_date = "2026-05-14"
+
+# ------------------------------------------------------------
+# Variáveis públicas (não-secretas)
+# ------------------------------------------------------------
+# ALLOWED_ORIGINS: CSV dos domínios autorizados a chamar o Worker.
+# O Worker rejeita com 403 qualquer Origin que não esteja aqui.
+# Inclua também as origens de desenvolvimento (localhost) para
+# que o `python -m http.server 8080` funcione localmente.
+# ------------------------------------------------------------
+[vars]
+ALLOWED_ORIGINS = "https://assescont.github.io,http://localhost:8080,http://127.0.0.1:8080"
+
+# ------------------------------------------------------------
+# Secrets (NÃO ficam neste arquivo — usar `wrangler secret put`)
+# ------------------------------------------------------------
+# N8N_WEBHOOK_URL: URL completa do webhook do n8n.
+#   wrangler secret put N8N_WEBHOOK_URL
+#
+# (Opcional, se o n8n exigir Header Auth)
+# N8N_AUTH_HEADER: valor literal do header Authorization que o
+# Worker envia ao n8n. Ex.: "Token token=<TOKEN>"
+#   wrangler secret put N8N_AUTH_HEADER
+# ------------------------------------------------------------
