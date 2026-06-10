@@ -4,46 +4,35 @@
    ============================================ */
 
 /* ============================================
-   CONFIGURAÇÃO DO PROXY (Cloudflare Worker)
+   CONFIGURAÇÃO DO ENVIO (webhook n8n direto)
    ----------------------------------------------
-   ÚNICO destino do submit. O front NÃO fala mais
-   direto com o n8n — ele chama um Cloudflare
-   Worker que esconde a URL real do webhook (ver
-   worker/worker.js + worker/wrangler.toml).
+   O submit POSTa direto no webhook do n8n.
 
    Cadeia completa:
-     [ Form ] → [ Cloudflare Worker ] → [ n8n ] → [ API Solides ]
-                         │                  │              │
-                         │                  │              └─ token
-                         │                  └─ mapeamento     no n8n
-                         └─ URL n8n escondida em secret
-                            do Worker (env.N8N_WEBHOOK_URL)
+     [ Form ] → [ n8n ] → [ API Solides ]
+                  │              │
+                  │              └─ token no n8n
+                  └─ mapeamento (body.formulario)
 
-   Por que o proxy:
-     - Antes, a URL do webhook do n8n aparecia no
-       Network do DevTools — qualquer um podia
-       copiar e fazer POST direto, bypassando o
-       front. Agora o navegador só conhece esta
-       URL pública do Worker.
-     - O Worker valida o header Origin (CORS).
-     - Em produção, o Worker pode adicionar Header
-       Auth para o n8n, rate limiting, etc.
+   ⚠️ Trade-offs deste caminho direto:
+     - A URL do webhook fica visível no DevTools →
+       Network. Qualquer um pode copiar e fazer POST
+       direto. Para mitigar, o webhook do n8n deve
+       restringir "Allowed Origins" ao domínio do
+       formulário (assescontcontabil.com.br) — isso
+       barra chamadas via navegador de outras origens
+       (CORS), embora não impeça requisições
+       server-to-server (que podem forjar o Origin).
+     - Não há Header Auth no caminho do navegador.
 
-   ⚠️ Atualize PROXY_URL abaixo com a URL do seu
-   Worker após o deploy (`wrangler deploy`). A
-   URL fica em workers.dev por padrão, mas pode
-   ser apontada para um subdomínio próprio.
-
-   Ver seção 7.4 da DOCUMENTACAO.md para deploy.
+   Existe um Cloudflare Worker em worker/ que esconde
+   a URL do n8n (Form → Worker → n8n). Não está em uso
+   neste caminho direto; manter como opção futura de
+   hardening. Ver DOCUMENTACAO.md (§7.4).
    ============================================ */
 const N8N_CONFIG = {
-    // URL pública do Cloudflare Worker (proxy). Substituir após `wrangler deploy`.
-    // Padrão wrangler: https://<worker-name>.<sua-conta>.workers.dev
-    webhookUrl: 'https://forms-admissao-proxy.assescont.workers.dev',
-
-    // Worker é a ÚNICA via de envio. Se falhar, o submit aborta
-    // e o usuário vê o erro — não há fallback no navegador.
-    bloquearSeFalhar: true
+    // URL pública do webhook de produção do n8n.
+    webhookUrl: 'https://n8n.srv934741.hstgr.cloud/webhook/e35762b6-ecc4-440f-91ba-4f4517880968'
 };
 
 /* ============================================
@@ -802,12 +791,11 @@ async function montarPayloadN8N(dados, dependentes) {
 }
 
 /**
- * POST do payload completo no Cloudflare Worker (que repassa pro n8n).
- * Não envia nenhum header de auth do lado do navegador — o Worker é
- * que decide se adiciona Header Auth pro n8n no caminho upstream.
- * A proteção da chamada está em:
- *   1. CORS no Worker (Origin precisa estar na allowlist)
- *   2. URL do n8n nunca aparece no navegador
+ * POST do payload completo direto no webhook do n8n.
+ * Não envia header de auth do lado do navegador — a proteção é o
+ * "Allowed Origins" configurado no nó Webhook do n8n, que deve
+ * conter o domínio do formulário (assescontcontabil.com.br) para
+ * barrar chamadas via navegador de outras origens (CORS).
  */
 async function enviarParaN8N(payload) {
     const response = await fetch(N8N_CONFIG.webhookUrl, {
