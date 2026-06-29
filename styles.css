@@ -447,6 +447,10 @@ body {
     font-weight: 600;
 }
 
+.consent-text .req {
+    font-size: 0.9em;
+}
+
 .consent-text a {
     color: var(--accent-dark);
     text-decoration: underline;
@@ -602,6 +606,17 @@ body {
     font-weight: 600;
     color: var(--text-dark);
     letter-spacing: 0.05em;
+}
+
+.doc-title .req {
+    font-size: 0.85em;
+}
+
+.doc-optional {
+    font-size: 0.72rem;
+    font-weight: 400;
+    color: var(--text-muted);
+    letter-spacing: 0.03em;
 }
 
 .doc-hint {

@@ -79,6 +79,28 @@ if (!form || !submitBtn || !feedback) {
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 const documentosArquivos = {}; // { rgFrente: File, rgVerso: File, ... }
 
+/** Chaves dos slots em data-doc (index.html). CNH é a única opcional. */
+const DOCS_OBRIGATORIOS = [
+    'rgFrente',
+    'rgVerso',
+    'cpfDoc',
+    'comprovanteResidencia',
+    'carteiraTrabalho',
+    'tituloEleitor',
+    'foto3x4'
+];
+
+const DOC_LABELS = {
+    rgFrente: 'RG — Frente',
+    rgVerso: 'RG — Verso',
+    cnhDoc: 'CNH',
+    cpfDoc: 'CPF',
+    comprovanteResidencia: 'Comprovante de Residência',
+    carteiraTrabalho: 'Carteira de Trabalho',
+    tituloEleitor: 'Título de Eleitor',
+    foto3x4: 'Foto 3x4'
+};
+
 function formatFileSize(bytes) {
     if (bytes < 1024) return bytes + ' B';
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
@@ -715,10 +737,40 @@ function validarFormulario(dados) {
     return erros;
 }
 
+/**
+ * Verifica se todos os documentos obrigatórios foram anexados.
+ * Retorna a lista de chaves faltantes (vazia = tudo ok).
+ */
+function validarDocumentos() {
+    const faltando = DOCS_OBRIGATORIOS.filter(chave => !documentosArquivos[chave]);
+    document.querySelectorAll('.doc-upload').forEach(el => el.classList.remove('error'));
+    faltando.forEach(chave => {
+        document.querySelector(`.doc-upload[data-doc="${chave}"]`)?.classList.add('error');
+    });
+    return faltando;
+}
+
+/** Consentimento LGPD — obrigatório antes do envio. */
+function validarConsentimento() {
+    const consentEl = document.getElementById('consentLgpd');
+    const consentField = document.getElementById('consentField');
+    const ok = Boolean(consentEl?.checked);
+
+    if (!ok) {
+        consentField?.classList.add('error');
+    } else {
+        consentField?.classList.remove('error');
+    }
+
+    return ok;
+}
+
 function limparErros() {
     document.querySelectorAll('.form-field input, .form-field select').forEach(el => {
         el.classList.remove('error');
     });
+    document.querySelectorAll('.doc-upload').forEach(el => el.classList.remove('error'));
+    document.getElementById('consentField')?.classList.remove('error');
 }
 
 function marcarErros(erros) {
@@ -872,7 +924,7 @@ form.addEventListener('submit', async (e) => {
         celular: document.getElementById('celular').value
     };
 
-    // Validação
+    // Validação dos campos de texto/select
     const erros = validarFormulario(dados);
     if (erros.length > 0) {
         marcarErros(erros);
@@ -880,18 +932,30 @@ form.addEventListener('submit', async (e) => {
         return;
     }
 
-    // Consentimento LGPD — obrigatório.
-    // Bloqueia o envio se o usuário não marcou o checkbox; o campo
-    // recebe a classe .error para destacar visualmente.
-    const consentEl = document.getElementById('consentLgpd');
-    const consentField = document.getElementById('consentField');
-    if (!consentEl?.checked) {
-        consentField?.classList.add('error');
-        showFeedback('error', 'É necessário concordar com o tratamento dos dados (LGPD) para enviar a admissão.');
-        consentField?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Documentos obrigatórios (todos exceto CNH) + termos LGPD
+    const docsFaltando = validarDocumentos();
+    const consentOk = validarConsentimento();
+
+    if (docsFaltando.length > 0 || !consentOk) {
+        const partes = [];
+        if (docsFaltando.length > 0) {
+            const nomes = docsFaltando.map(chave => DOC_LABELS[chave] || chave).join(', ');
+            partes.push(`anexe os documentos obrigatórios em destaque (${nomes})`);
+        }
+        if (!consentOk) {
+            partes.push('marque a caixa de concordância com o tratamento dos dados (LGPD)');
+        }
+        showFeedback('error', `Antes de enviar: ${partes.join(' e ')}.`);
+
+        if (docsFaltando.length > 0) {
+            document.querySelector(`.doc-upload[data-doc="${docsFaltando[0]}"]`)
+                ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            document.getElementById('consentField')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         return;
     }
-    consentField?.classList.remove('error');
 
     // Dependentes — só valida/coleta se o usuário disse "Sim".
     // Se "Não", o array fica vazio e a seção é ignorada.
